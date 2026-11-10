@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'app/app_bloc_observer.dart';
 import 'app/music_app.dart';
 import 'core/dependency_injection/injection_container.dart';
@@ -12,6 +13,15 @@ import 'features/now_playing/logic/now_playing_cubit.dart';
 void main() async {
   // التأكد من تهيئة قنوات Flutter المدمجة قبل استدعاء الخدمات
   WidgetsFlutterBinding.ensureInitialized();
+
+  // تهيئة خدمة تشغيل الصوت في الخلفية وإشعارات شريط المهام وقفل الشاشة
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.example.music_app_100.channel.audio',
+    androidNotificationChannelName: 'Music Playback',
+    androidNotificationOngoing: true,
+    androidStopForegroundOnPause: true,
+    androidNotificationIcon: 'mipmap/ic_launcher',
+  );
 
   // ضبط ألوان شريط الحالة العلوي بالنظام ليكون شفافاً ومتناسقاً مع التصميم
   SystemChrome.setSystemUIOverlayStyle(

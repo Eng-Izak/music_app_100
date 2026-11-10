@@ -40,6 +40,13 @@ class AppStyles {
     color: AppColors.isDark ? AppColors.darkTextPrimary : AppColors.textPrimary,
   );
 
+  // نمط النصوص العادية بحجم 16
+  static TextStyle get font16Regular => TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.w400,
+    color: AppColors.isDark ? AppColors.darkTextSecondary : AppColors.textSecondary,
+  );
+
   // نمط نصوص متوسطة شبه عريضة (القوائم الفرعية والخيارات)
   static TextStyle get font14SemiBold => TextStyle(
     fontSize: 14,

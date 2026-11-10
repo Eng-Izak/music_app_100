@@ -62,8 +62,29 @@ class PlaylistDetailsScreen extends StatelessWidget {
               ),
             ],
           ),
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Container(
+              decoration: BoxDecoration(
+                color: AppColors.scaffoldBg(context),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withAlpha(AppColors.isDark ? 50 : 10),
+                    blurRadius: 8,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: const AppDeveloperFooter(
+                showDivider: true,
+                padding: EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 8),
+              ),
+            ),
+          ),
           body: BlocBuilder<NowPlayingCubit, NowPlayingState>(
             builder: (context, playerState) {
+              final bottomSpacing = playerState.isMiniPlayerVisible ? 85.0 : 16.0;
+
               return Stack(
                 children: [
                   SingleChildScrollView(
@@ -72,7 +93,7 @@ class PlaylistDetailsScreen extends StatelessWidget {
                       left: 20.0,
                       right: 20.0,
                       top: 12.0,
-                      bottom: playerState.isMiniPlayerVisible ? 100.0 : 30.0,
+                      bottom: bottomSpacing,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,9 +154,7 @@ class PlaylistDetailsScreen extends StatelessWidget {
                             },
                           ),
 
-                        const SizedBox(height: 20),
-                        const AppDeveloperFooter(),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
@@ -447,12 +466,13 @@ class PlaylistDetailsScreen extends StatelessWidget {
   Widget _buildEmptyState(BuildContext context, bool isAr) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50.0),
+        padding: const EdgeInsets.symmetric(vertical: 40.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
               Icons.music_off_rounded,
-              size: 64,
+              size: 56,
               color: AppColors.textSecondaryColor(context).withAlpha(120),
             ),
             const SizedBox(height: 14),

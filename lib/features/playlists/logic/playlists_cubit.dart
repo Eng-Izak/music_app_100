@@ -71,6 +71,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updated,
       filteredPlaylists: updated,
     ));
+    _audioRepository.savePlaylists(updated);
   }
 
   /// تحديث بيانات قائمة التشغيل (الاسم والغلاف)
@@ -96,6 +97,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updated,
       filteredPlaylists: updated,
     ));
+    _audioRepository.savePlaylists(updated);
   }
 
   /// إضافة مقطع صوتي إلى قائمة تشغيل محددة
@@ -117,6 +119,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updatedPlaylists,
       filteredPlaylists: updatedPlaylists,
     ));
+    _audioRepository.savePlaylists(updatedPlaylists);
   }
 
   /// حذف مقطع صوتي من قائمة تشغيل محددة
@@ -136,6 +139,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updatedPlaylists,
       filteredPlaylists: updatedPlaylists,
     ));
+    _audioRepository.savePlaylists(updatedPlaylists);
   }
 
   /// حذف قائمة تشغيل بالكامل
@@ -145,6 +149,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updated,
       filteredPlaylists: updated,
     ));
+    _audioRepository.savePlaylists(updated);
   }
 
   /// إعادة تسمية قائمة تشغيل
@@ -161,6 +166,7 @@ class PlaylistsCubit extends Cubit<PlaylistsState> {
       playlists: updated,
       filteredPlaylists: updated,
     ));
+    _audioRepository.savePlaylists(updated);
   }
 }
 

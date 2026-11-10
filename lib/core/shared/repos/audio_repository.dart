@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:on_audio_query/on_audio_query.dart' hide PlaylistModel;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/track_model.dart';
 import '../models/playlist_model.dart';
 import '../../utils/constants/assets_keys.dart';
@@ -21,6 +23,12 @@ class AudioRepository {
     var storageStatus = await Permission.storage.status;
     if (!storageStatus.isGranted) {
       storageStatus = await Permission.storage.request();
+    }
+
+    // طلب إذن الإشعارات لنظام أندرويد 13+ لإظهار تحكم الموسيقى في لوحة الإشعارات
+    var notificationStatus = await Permission.notification.status;
+    if (!notificationStatus.isGranted) {
+      await Permission.notification.request();
     }
 
     if (audioStatus.isGranted || storageStatus.isGranted) {
@@ -87,9 +95,31 @@ class AudioRepository {
     return all.take(3).toList();
   }
 
-  /// جلب كافة قوائم التشغيل (Your Collections)
-  /// تبدأ فارغة تماماً عند التثبيت بدون بيانات تلقائية مسبقة
+  static const String _playlistsKey = 'user_custom_playlists';
+
+  /// جلب كافة قوائم التشغيل المحفوظة محلياً في ذاكرة الهاتف
   Future<List<PlaylistModel>> getPlaylists() async {
-    return [];
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final jsonString = prefs.getString(_playlistsKey);
+      if (jsonString == null || jsonString.isEmpty) {
+        return [];
+      }
+      final List<dynamic> list = jsonDecode(jsonString);
+      return list
+          .map((e) => PlaylistModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// حفظ وتحديث قوائم التشغيل محلياً في ذاكرة الهاتف لضمان بقائها بعد إغلاق التطبيق
+  Future<void> savePlaylists(List<PlaylistModel> playlists) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final list = playlists.map((p) => p.toJson()).toList();
+      await prefs.setString(_playlistsKey, jsonEncode(list));
+    } catch (_) {}
   }
 }

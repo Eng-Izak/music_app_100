@@ -13,6 +13,7 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
   StreamSubscription? _durationSub;
   StreamSubscription? _playerStateSub;
   StreamSubscription? _volumeSub;
+  StreamSubscription? _indexSub;
 
   NowPlayingCubit(this._audioPlayerService) : super(const NowPlayingState()) {
     _initAudioStreams();
@@ -51,6 +52,20 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
     _volumeSub = _audioPlayerService.volumeStream.listen((vol) {
       emit(state.copyWith(volume: vol));
     });
+
+    // مراقبة تغير المقطع الصوتي الحالي (عبر أزرار التالي/السابق في الإشعارات وشاشة القفل)
+    _indexSub = _audioPlayerService.currentIndexStream.listen((index) {
+      if (index != null && index >= 0 && index < state.queue.length) {
+        final current = state.queue[index];
+        if (state.currentTrack?.id != current.id) {
+          emit(state.copyWith(
+            currentTrack: current,
+            duration: current.duration,
+            position: Duration.zero,
+          ));
+        }
+      }
+    });
   }
 
   /// تعيين قائمة انتظار التشغيل (Queue) والمقطع الحالي مع خيار التحكم بالتشغيل التلقائي
@@ -71,16 +86,40 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
 
   /// تشغيل المقطع أو تبديل حالته بين التشغيل والإيقاف إذا كان هو نفسه المقطع الحالي
   Future<void> playOrToggleTrack(TrackModel track, {List<TrackModel>? queue}) async {
-    if (queue != null && queue.isNotEmpty) {
-      emit(state.copyWith(queue: queue));
+    final effectiveQueue = (queue != null && queue.isNotEmpty) ? queue : state.queue;
+    if (effectiveQueue.isNotEmpty) {
+      emit(state.copyWith(queue: effectiveQueue));
     }
 
     // إذا كان المقطع هو نفسه المشغل حالياً والمشغل ظاهر بالفعل، نقوم بتبديل التشغيل/الإيقاف
     if (state.currentTrack?.id == track.id && state.isMiniPlayerVisible) {
       await togglePlayPause();
     } else {
-      // خلاف ذلك (أول نقرة للمستخدم، أو المشغل مخفي، أو مقطع مختلف)، نبدأ تشغيل المقطع فوراً ويظهر المشغل
-      await playTrack(track);
+      final index = effectiveQueue.indexWhere((t) => t.id == track.id);
+      if (effectiveQueue.isNotEmpty && index != -1) {
+        emit(state.copyWith(
+          status: PlaybackStatus.loading,
+          currentTrack: track,
+          duration: track.duration,
+          position: Duration.zero,
+          isMiniPlayerVisible: true,
+        ));
+        try {
+          await _audioPlayerService.setPlaylist(
+            effectiveQueue,
+            initialIndex: index,
+            autoPlay: true,
+          );
+          emit(state.copyWith(status: PlaybackStatus.playing));
+        } catch (e) {
+          emit(state.copyWith(
+            status: PlaybackStatus.error,
+            errorMessage: 'تعذر تشغيل المقطع الصوتي: $e',
+          ));
+        }
+      } else {
+        await playTrack(track);
+      }
     }
   }
 
@@ -211,13 +250,17 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
   Future<void> playNextTrack() async {
     if (state.queue.isEmpty || state.currentTrack == null) return;
 
-    final currentIndex = state.queue.indexWhere((t) => t.id == state.currentTrack!.id);
-    if (currentIndex != -1 && currentIndex + 1 < state.queue.length) {
-      final nextTrack = state.queue[currentIndex + 1];
-      await playTrack(nextTrack);
-    } else if (state.queue.isNotEmpty) {
-      // العودة لأول القائمة إذا وصلنا للنهاية
-      await playTrack(state.queue.first);
+    if (_audioPlayerService.hasNext) {
+      await _audioPlayerService.seekToNext();
+    } else {
+      final currentIndex = state.queue.indexWhere((t) => t.id == state.currentTrack!.id);
+      if (currentIndex != -1 && currentIndex + 1 < state.queue.length) {
+        final nextTrack = state.queue[currentIndex + 1];
+        await playTrack(nextTrack);
+      } else if (state.queue.isNotEmpty) {
+        // العودة لأول القائمة إذا وصلنا للنهاية
+        await playTrack(state.queue.first);
+      }
     }
   }
 
@@ -231,12 +274,16 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
       return;
     }
 
-    final currentIndex = state.queue.indexWhere((t) => t.id == state.currentTrack!.id);
-    if (currentIndex > 0) {
-      final prevTrack = state.queue[currentIndex - 1];
-      await playTrack(prevTrack);
-    } else if (state.queue.isNotEmpty) {
-      await playTrack(state.queue.last);
+    if (_audioPlayerService.hasPrevious) {
+      await _audioPlayerService.seekToPrevious();
+    } else {
+      final currentIndex = state.queue.indexWhere((t) => t.id == state.currentTrack!.id);
+      if (currentIndex > 0) {
+        final prevTrack = state.queue[currentIndex - 1];
+        await playTrack(prevTrack);
+      } else if (state.queue.isNotEmpty) {
+        await playTrack(state.queue.last);
+      }
     }
   }
 
@@ -270,6 +317,7 @@ class NowPlayingCubit extends Cubit<NowPlayingState> {
     _durationSub?.cancel();
     _playerStateSub?.cancel();
     _volumeSub?.cancel();
+    _indexSub?.cancel();
     return super.close();
   }
 }

@@ -37,7 +37,7 @@ Future<void> setupInjection() async {
   // 5. طبقة إدارة الحالة (Feature Cubits)
   getIt.registerFactory<HomeCubit>(() => HomeCubit(getIt<AudioRepository>()));
   getIt.registerLazySingleton<NowPlayingCubit>(() => NowPlayingCubit(getIt<AudioPlayerService>()));
-  getIt.registerFactory<PlaylistsCubit>(() => PlaylistsCubit(getIt<AudioRepository>()));
+  getIt.registerLazySingleton<PlaylistsCubit>(() => PlaylistsCubit(getIt<AudioRepository>()));
   getIt.registerLazySingleton<EqualizerCubit>(() => EqualizerCubit(getIt<EqualizerService>()));
   getIt.registerFactory<SleepTimerCubit>(() => SleepTimerCubit(getIt<TimerService>()));
   getIt.registerLazySingleton<SettingsCubit>(() => SettingsCubit(getIt<PreferencesRepository>()));

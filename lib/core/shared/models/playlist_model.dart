@@ -42,6 +42,34 @@ class PlaylistModel extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'trackCount': trackCount,
+      'coverUrl': coverUrl,
+      'isGradient': isGradient,
+      'isNew': isNew,
+      'tracks': tracks.map((t) => t.toJson()).toList(),
+    };
+  }
+
+  factory PlaylistModel.fromJson(Map<String, dynamic> json) {
+    final tracksList = (json['tracks'] as List<dynamic>?)
+            ?.map((e) => TrackModel.fromJson(e as Map<String, dynamic>))
+            .toList() ??
+        const [];
+    return PlaylistModel(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      trackCount: json['trackCount'] as int? ?? tracksList.length,
+      coverUrl: json['coverUrl'] as String?,
+      isGradient: json['isGradient'] as bool? ?? false,
+      isNew: json['isNew'] as bool? ?? false,
+      tracks: tracksList,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,

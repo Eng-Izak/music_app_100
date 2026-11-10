@@ -1,6 +1,9 @@
 /// روابط ومسارات الصور والأيقونات (Asset Keys & Network Cover Links)
 /// نوفر روابط مباشرة لأغلفة الألبومات المتطابقة مع الواجهات لضمان ظهور صور حية وجميلة
 class AssetsKeys {
+  // شعار التطبيق الرئيسي
+  static const String appLogo = 'assets/icons/app_logo.png';
+
   // أيقونة النغمة الموحدة
   static const String musicNoteIcon = 'assets/icons/music_note.png';
 

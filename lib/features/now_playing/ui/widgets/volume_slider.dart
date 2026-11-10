@@ -69,15 +69,22 @@ class VolumeSlider extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                icon: Icon(Icons.devices, size: 22, color: AppColors.textSecondaryColor(context)),
+                tooltip: 'مخرج الصوت',
+                icon: Icon(Icons.devices, size: 24, color: AppColors.textSecondaryColor(context)),
                 onPressed: onDevicesTap,
               ),
               IconButton(
-                icon: Icon(Icons.share_outlined, size: 22, color: AppColors.textSecondaryColor(context)),
+                tooltip: 'مشاركة المقطع',
+                icon: Icon(Icons.share_outlined, size: 24, color: AppColors.textSecondaryColor(context)),
                 onPressed: onShareTap,
               ),
               IconButton(
-                icon: Icon(Icons.queue_music, size: 22, color: AppColors.isDark ? const Color(0xFF60A5FA) : const Color(0xFFC084FC)),
+                tooltip: 'قائمة الانتظار الحالية',
+                icon: Icon(
+                  Icons.queue_music,
+                  size: 24,
+                  color: AppColors.isDark ? const Color(0xFF60A5FA) : const Color(0xFFC084FC),
+                ),
                 onPressed: onQueueTap,
               ),
             ],

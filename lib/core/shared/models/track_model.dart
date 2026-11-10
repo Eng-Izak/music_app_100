@@ -46,6 +46,32 @@ class TrackModel extends Equatable {
     );
   }
 
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'artist': artist,
+      'album': album,
+      'artworkUrl': artworkUrl,
+      'audioUrl': audioUrl,
+      'durationMs': duration.inMilliseconds,
+      'isFavorite': isFavorite,
+    };
+  }
+
+  factory TrackModel.fromJson(Map<String, dynamic> json) {
+    return TrackModel(
+      id: json['id'] as String? ?? '',
+      title: json['title'] as String? ?? '',
+      artist: json['artist'] as String? ?? '',
+      album: json['album'] as String? ?? '',
+      artworkUrl: json['artworkUrl'] as String? ?? '',
+      audioUrl: json['audioUrl'] as String? ?? '',
+      duration: Duration(milliseconds: json['durationMs'] as int? ?? 0),
+      isFavorite: json['isFavorite'] as bool? ?? false,
+    );
+  }
+
   @override
   List<Object?> get props => [
         id,
